@@ -321,18 +321,27 @@ class ScrolledFrame(tk.Frame):
 
         if sys.platform.startswith("darwin"):
             # macOS
-            canvas.yview_scroll(-1 * event.delta, "units")
+            if event.state == 0:  # In macos event state is 0 for scrolling up and down
+                canvas.yview_scroll(-1 * event.delta, "units")
 
-        elif event.num == 4:
-            # Unix - scroll up
+            elif event.state == 1:  # and event state 1 for scrolling left and right
+                canvas.xview_scroll(-1 * event.delta, "units")
+
+        # Unix oddly handles each direction separately
+        elif event.num == 4:  # Unix - scroll up
             canvas.yview_scroll(-1, "units")
-
-        elif event.num == 5:
-            # Unix - scroll down
+        elif event.num == 5:  # Unix - scroll down
             canvas.yview_scroll(1, "units")
 
-        else:
-            # Windows
+        if event.num == 6:  # Unix - scroll left
+            canvas.yview_scroll(-1, "units")
+        elif event.num == 7:  # Unix - scroll right
+            canvas.yview_scroll(1, "units")
+
+        elif event.state == 9:  # windows scroll x direction
+            canvas.xview_scroll(-1 * (event.delta // 120), "units")
+
+        elif event.state == 8:  # windows scroll y direction
             canvas.yview_scroll(-1 * (event.delta // 120), "units")
 
     def _update_scroll_region(self, event: tk.Event) -> None:
