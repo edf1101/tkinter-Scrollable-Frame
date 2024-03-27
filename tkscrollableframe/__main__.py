@@ -5,8 +5,10 @@ from tkinter import Tk, Frame, Label
 # Import the widget in a number of ways to support different use cases
 try:
     from widget import ScrolledFrame
+    from scrollbar_type_enum import ScrollbarsType
 except ImportError:
     from .widget import ScrolledFrame
+    from .scrollbar_type_enum import ScrollbarsType
 
 
 def demo() -> None:
@@ -19,7 +21,7 @@ def demo() -> None:
     root = Tk()
 
     # Create a ScrolledFrame widget
-    scrolled_frame = ScrolledFrame(root,
+    scrolled_frame = ScrolledFrame(root, scrollbars=ScrollbarsType.BOTH,
                                    width=640, height=480)  # Default width and height
 
     scrolled_frame.pack(side="top", expand=1, fill="both")  # Fill the entire root window

@@ -1,4 +1,6 @@
-"""Implementation of the scrollable frame widget."""
+"""
+Implementation of the scrollable frame widget.
+"""
 
 # pylint: disable=R0902
 import sys
@@ -9,6 +11,16 @@ from tkinter import ttk
 __all__ = ["ScrolledFrame"]
 
 from typing import Any, Union
+
+# Import the scrollbar type enum in a number of ways to support different use cases
+try:
+    from scrollbar_type_enum import ScrollbarsType
+except ImportError:
+    from .scrollbar_type_enum import ScrollbarsType
+
+# Scrollbar-related configuration
+_DEFAULT_SCROLLBARS = "both"
+_VALID_SCROLLBARS = "vertical", "horizontal", "both", "neither"
 
 
 class ScrolledFrame(tk.Frame):
@@ -35,18 +47,13 @@ class ScrolledFrame(tk.Frame):
         no effect if ttk is not available on your system.
     """
 
-    # Keys for configure() to forward to the canvas widget
-    _CANVAS_KEYS = "width", "height", "takefocus"
-
-    # Scrollbar-related configuration
-    _DEFAULT_SCROLLBARS = "both"
-    _VALID_SCROLLBARS = "vertical", "horizontal", "both", "neither"
-
-    def __init__(self, master: tk.Tk, **kwargs) -> None:
+    def __init__(self, master: tk.Tk, scrollbars: ScrollbarsType = ScrollbarsType.BOTH,
+                 **kwargs) -> None:
         """
         Initialize the ScrolledFrame.
 
         :param master: The parent widget.
+        :param self.__scrollbars: Which scrollbars to provide.
         :param kwargs: Keyword arguments for the usual tk widget settings.
         """
 
@@ -64,18 +71,7 @@ class ScrolledFrame(tk.Frame):
         self._fit_width = False
 
         # Which scrollbars to provide
-        if "scrollbars" in kwargs:
-            scrollbars = kwargs["scrollbars"]
-            del kwargs["scrollbars"]
-
-            if not scrollbars:
-                scrollbars = self._DEFAULT_SCROLLBARS
-            elif scrollbars not in self._VALID_SCROLLBARS:
-                raise ValueError("scrollbars parameter must be one of "
-                                 "'vertical', 'horizontal', 'both', or "
-                                 "'neither'")
-        else:
-            scrollbars = self._DEFAULT_SCROLLBARS
+        self.__scrollbars = scrollbars.value
 
         # Whether to use ttk widgets if available
         if "use_ttk" in kwargs:
@@ -121,9 +117,9 @@ class ScrolledFrame(tk.Frame):
 
         # Lay out our widgets
         canvas.grid(row=0, column=0, sticky="nsew")
-        if scrollbars in ["vertical", "both"]:
+        if self.__scrollbars in ["vertical", "both"]:
             yscroll.grid(row=0, column=1, sticky="ns")
-        if scrollbars in ["horizontal", "both"]:
+        if self.__scrollbars in ["horizontal", "both"]:
             xscroll.grid(row=1, column=0, sticky="we")
 
         # Forward these to the canvas widget
@@ -146,7 +142,7 @@ class ScrolledFrame(tk.Frame):
         :param value: Value of the dictionary option
         """
 
-        if key in self._CANVAS_KEYS:
+        if key in ["width", "height", "takefocus"]:
             # Forward these to the canvas widget
             self._canvas.configure(**{key: value})
 
@@ -192,7 +188,7 @@ class ScrolledFrame(tk.Frame):
         :return: The value of the item
         """
 
-        if key in self._CANVAS_KEYS:
+        if key in ["width", "height", "takefocus"]:
             return self._canvas.cget(key)
 
         return tk.Frame.cget(self, key)
@@ -287,7 +283,7 @@ class ScrolledFrame(tk.Frame):
         self._canvas.xview_moveto(0)
         self._canvas.yview_moveto(0)
 
-    def _resize_interior(self, event:tk.Event=None)-> None:
+    def _resize_interior(self, event: tk.Event = None) -> None:
         """
         Resize the interior widget to fit the canvas.
 
@@ -318,31 +314,38 @@ class ScrolledFrame(tk.Frame):
         """
 
         canvas = self._canvas
+        print(self.__scrollbars)
+        # If we are able to vertically scroll
+        if self.__scrollbars in [ScrollbarsType.BOTH.value, ScrollbarsType.VERTICAL.value]:
 
-        if sys.platform.startswith("darwin"):
-            # macOS
-            if event.state == 0:  # In macos event state is 0 for scrolling up and down
-                canvas.yview_scroll(-1 * event.delta, "units")
+            if sys.platform.startswith("darwin"):
+                if event.state == 0:  # In macOS event state is 0 for scrolling up and down
+                    canvas.yview_scroll(-1 * event.delta, "units")
 
-            elif event.state == 1:  # and event state 1 for scrolling left and right
-                canvas.xview_scroll(-1 * event.delta, "units")
+            # Unix oddly handles each direction separately
+            elif event.num == 4:  # Unix - scroll up
+                canvas.yview_scroll(-1, "units")
+            elif event.num == 5:  # Unix - scroll down
+                canvas.yview_scroll(1, "units")
 
-        # Unix oddly handles each direction separately
-        elif event.num == 4:  # Unix - scroll up
-            canvas.yview_scroll(-1, "units")
-        elif event.num == 5:  # Unix - scroll down
-            canvas.yview_scroll(1, "units")
+            elif event.state == 8:  # windows scroll y direction
+                canvas.yview_scroll(-1 * (event.delta // 120), "units")
 
-        if event.num == 6:  # Unix - scroll left
-            canvas.yview_scroll(-1, "units")
-        elif event.num == 7:  # Unix - scroll right
-            canvas.yview_scroll(1, "units")
+        # if we are able to horizontally scroll
+        if self.__scrollbars in [ScrollbarsType.BOTH.value, ScrollbarsType.HORIZONTAL.value]:
 
-        elif event.state == 9:  # windows scroll x direction
-            canvas.xview_scroll(-1 * (event.delta // 120), "units")
+            if sys.platform.startswith("darwin"):
+                if event.state == 1:  # and event state 1 for scrolling left and right
+                    canvas.xview_scroll(-1 * event.delta, "units")
 
-        elif event.state == 8:  # windows scroll y direction
-            canvas.yview_scroll(-1 * (event.delta // 120), "units")
+            if event.num == 6:  # Unix - scroll left
+                canvas.yview_scroll(-1, "units")
+            elif event.num == 7:  # Unix - scroll right
+                canvas.yview_scroll(1, "units")
+
+            elif event.state == 9:  # windows scroll x direction
+                canvas.xview_scroll(-1 * (event.delta // 120), "units")
+
 
     def _update_scroll_region(self, event: tk.Event) -> None:
         """
