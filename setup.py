@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 NAME = "tkscrollableframe"
 VERSION = "2.0"
 AUTHOR = "edf1101"
-AUTHOR_EMAIL = ""
+AUTHOR_EMAIL = "blank@blank.com"
 DESCRIPTION = "Scrollable frame widget for Tkinter"
 
 with open("README.md", "r") as readme:
@@ -14,11 +14,10 @@ with open("README.md", "r") as readme:
 URL = "https://github.com/edf1101/tkinter-Scrollable-Frame"
 PACKAGES = find_packages()
 CLASSIFIERS = [
-    "Development Status :: 4 - Beta",
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
-]
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+    ]
 
 setup(name=NAME,
       version=VERSION,
