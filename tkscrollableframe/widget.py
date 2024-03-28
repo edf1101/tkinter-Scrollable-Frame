@@ -62,8 +62,10 @@ class ScrolledFrame(tk.Frame):
         """
 
         # bind the arrow keys and scroll wheel
-        self.bind_arrow_keys(master)
-        self.bind_scroll_wheel(master)
+        if use_arrow_keys:
+            self.bind_arrow_keys(master)
+        if use_scroll_wheel:
+            self.bind_scroll_wheel(master)
 
         tk.Frame.__init__(self, master)
 

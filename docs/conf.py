@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.abspath('..'))
 project = 'tkinter Scrollable Frame'
 copyright = '2024, Benjamin Johnson and @edf1101'
 author = 'Benjamin Johnson and @edf1101'
-release = 'v2.0'
+release = 'v2.2'
 
 # -- General configuration ---------------------------------------------------
 
