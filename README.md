@@ -1,6 +1,6 @@
 # tkinter Scrollable Frame
 
-<img src="res/readme_img.png" alt="drawing" width="400"/>
+<img src="res/readme_img.gif" alt="drawing" width="500"/>
 
 _Scrollable frame for tkinter GUIs. Upgraded version of: https://github.com/bmjcode/tkScrolledFrame but hosted here as 
 original version is archived._
