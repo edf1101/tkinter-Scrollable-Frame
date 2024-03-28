@@ -1,5 +1,7 @@
 """Simple demonstration of the ScrolledFrame widget."""
 
+# pylint: disable=R0801
+
 from tkinter import Tk, Frame, Label
 
 # Import the widget in a number of ways to support different use cases

@@ -48,12 +48,16 @@ class ScrolledFrame(tk.Frame):
     """
 
     def __init__(self, master: tk.Tk, scrollbars: ScrollbarsType = ScrollbarsType.BOTH,
+                 use_scroll_wheel: bool = True,
+                 use_arrow_keys: bool = False,
                  **kwargs) -> None:
         """
         Initialize the ScrolledFrame.
 
         :param master: The parent widget.
         :param self.__scrollbars: Which scrollbars to provide.
+        :param use_scroll_wheel: Whether to bind the mouse scroll wheel.
+        :param use_arrow_keys: Whether to bind the arrow keys.
         :param kwargs: Keyword arguments for the usual tk widget settings.
         """
 
@@ -100,8 +104,10 @@ class ScrolledFrame(tk.Frame):
                                           takefocus=0)
 
         # Enable scrolling when the canvas has the focus
-        self.bind_arrow_keys(canvas)
-        self.bind_scroll_wheel(canvas)
+        if use_arrow_keys:
+            self.bind_arrow_keys(canvas)
+        if use_scroll_wheel:
+            self.bind_scroll_wheel(canvas)
 
         # Call _resize_interior() when the canvas widget is updated
         canvas.bind("<Configure>", self._resize_interior)
@@ -314,7 +320,7 @@ class ScrolledFrame(tk.Frame):
         """
 
         canvas = self._canvas
-        print(self.__scrollbars)
+
         # If we are able to vertically scroll
         if self.__scrollbars in [ScrollbarsType.BOTH.value, ScrollbarsType.VERTICAL.value]:
 
@@ -345,7 +351,6 @@ class ScrolledFrame(tk.Frame):
 
             elif event.state == 9:  # windows scroll x direction
                 canvas.xview_scroll(-1 * (event.delta // 120), "units")
-
 
     def _update_scroll_region(self, event: tk.Event) -> None:
         """
